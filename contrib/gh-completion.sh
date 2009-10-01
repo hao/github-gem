@@ -5,28 +5,37 @@
 # Written by Pedro Melo <melo@simplicidade.org>, October 1, 2009
 #
 
-function _gh_gem_completion()
+_gh_commands='
+  browse clone config create-from-local create
+  fetch fetch_all fork home ignore info network
+  pull-request pull track
+'
+
+_gh_gem_completion()
 {
-  local commands partial
-
-  commands='
-    browse clone config create-from-local create
-    fetch fetch_all fork home ignore info network
-    pull-request pull track
-  '
-
-  partial=${COMP_WORDS[COMP_CWORD]}
-  
+  local c=1 command partial
   ## Debug
   # echo
-  # echo "COMP_CWORD is '$COMP_CWORD'"
-  # echo "COMP_LINE is '$COMP_LINE'"
-  # echo "COMP_POINT is '$COMP_POINT'"
-  # echo "COMP_WORDBREAKS is '$COMP_WORDBREAKS'"
-  # echo "COMP_WORDS is '$COMP_WORDS'"
-
-  COMPREPLY=( $( compgen -W "$commands" -- $partial ) )
-
+  # set | egrep '^COMP_(CWORD|WORDS|LINE|POINT)='
+  
+  while [ $c -lt $COMP_CWORD ]; do
+    i="${COMP_WORDS[c]}"
+    # echo "  iter i='$i', c is '$c'"
+    case "$i" in
+      -*) ;; # ignore options before command
+      *) command="$i"; break ;;
+    esac
+		c=$((++c))
+  done
+  
+  # echo "Got command '$command', c is '$c'"  
+  if [ -z "$command" ] ; then
+    partial=${COMP_WORDS[COMP_CWORD]}
+    COMPREPLY=( $( compgen -W "$_gh_commands" -- $partial ) )
+  else
+    COMPREPLY=''
+  fi
+  
   return 0
 }
 
