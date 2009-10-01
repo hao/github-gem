@@ -47,6 +47,32 @@ _gh_next_word()
   done
 }
 
+_gh_remote_users()
+{
+  git remote -v | egrep '//github.com/.+ \(fetch\)' | cut -f1
+}
+
+_gh_remote_user_branches()
+{
+  local user=$1
+  git branch -r | grep "$user/" | cut -f2 -d/
+}
+
+_gh_browse_completion()
+{
+  local user=$( _gh_next_word $1 )
+  
+  if [ -z "$user" ] ; then
+    local users=$( _gh_remote_users )
+    _gh_trace "No users, complete from '$users'"
+    _gh_comp "$users"
+  else
+    local branches=$( _gh_remote_user_branches $user )
+    _gh_trace "Got user as '$user', complete from branches"
+    _gh_comp "$branches"
+	fi
+}
+
 _gh_gem_completion()
 {
   local c=1 command partial
@@ -70,6 +96,7 @@ _gh_gem_completion()
   
   _gh_trace "Got command '$command', c is '$c'"
   case "$command" in
+    browse)    _gh_browse_completion $c ;;
     *)         _gh_trace "Command not handled"; COMPREPLY=() ;;
   esac
   
