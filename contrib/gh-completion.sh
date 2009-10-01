@@ -179,6 +179,22 @@ _gh_network_completion()
   esac
 }
 
+_gh_pull_completion()
+{
+  local user=$( _gh_next_word $1 )
+  
+  if [ -z "$user" ] ; then
+    local users=$( _gh_remote_users )
+    local opts="--merge"
+    _gh_trace "No user, complete from '$users' and '$opts'"
+    _gh_comp_opts "$users" "$opts"
+  else
+    local branches=$( _gh_remote_user_branches $user )
+    _gh_trace "Got user as '$user', complete from branches"
+    _gh_comp "$branches"
+	fi
+}
+
 _gh_gem_completion()
 {
   local c=1 command partial
@@ -206,6 +222,7 @@ _gh_gem_completion()
     clone)     _gh_clone_completion $c ;;
     create)    _gh_create_completion $c ;;
     network)   _gh_network_completion $c ;;
+    pull)      _gh_pull_completion $c ;;
     *)         _gh_trace "Command not handled"; COMPREPLY=() ;;
   esac
   
