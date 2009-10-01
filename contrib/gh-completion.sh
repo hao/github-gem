@@ -143,6 +143,36 @@ _gh_create_completion()
 	COMPREPLY=()
 }
 
+_gh_network_completion()
+{
+  local network_subcommands="web list fetch commits"
+  ## TODO: figure out if this are 'network' command or 'commit' subcommand options
+  local network_options="
+    --applies --before --project --after --thisbranch --noapply
+    --nocache --cache --sort --shas --author --common --limit
+  "
+  
+  local subcommand=$( _gh_find_subcommand "$1" "$network_subcommands" )
+
+  if [ -z "$subcommand" ] ; then
+    local cur="${COMP_WORDS[COMP_CWORD]}"
+    _gh_trace "No subcommand, try complete '$cur'"
+    case "$cur" in
+      -*) _gh_comp "$network_options" "$cur" ;;
+      *)  _gh_comp "$network_subcommands" "$cur" ;;
+    esac
+    return
+  fi
+  
+  _gh_trace "Got subcommand '$subcommand'"
+  case "$subcommand" in
+    ## TODO: gh could give us a list of all network users ;)
+    ## FIXME: we should only match one user
+    web)   users=$( _gh_remote_users ); _gh_comp_opts "$users" "$network_options" ;;
+    *)     _gh_comp "$network_options" ;;
+  esac
+}
+
 _gh_gem_completion()
 {
   local c=1 command partial
@@ -169,6 +199,7 @@ _gh_gem_completion()
     browse)    _gh_browse_completion $c ;;
     clone)     _gh_clone_completion $c ;;
     create)    _gh_create_completion $c ;;
+    network)   _gh_network_completion $c ;;
     *)         _gh_trace "Command not handled"; COMPREPLY=() ;;
   esac
   
