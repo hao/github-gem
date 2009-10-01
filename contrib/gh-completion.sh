@@ -73,6 +73,19 @@ _gh_browse_completion()
 	fi
 }
 
+_gh_clone_completion()
+{
+  local cur="${COMP_WORDS[COMP_CWORD]}"
+  _gh_trace "Completing 'clone', cur word is '$cur'"
+
+	case "$cur" in
+    -*) _gh_comp "--ssh"; return;;
+	esac
+
+  _gh_trace "The '$cur' is not an option, so don't complete"
+	COMPREPLY=()
+}
+
 _gh_gem_completion()
 {
   local c=1 command partial
@@ -97,6 +110,7 @@ _gh_gem_completion()
   _gh_trace "Got command '$command', c is '$c'"
   case "$command" in
     browse)    _gh_browse_completion $c ;;
+    clone)     _gh_clone_completion $c ;;
     *)         _gh_trace "Command not handled"; COMPREPLY=() ;;
   esac
   
