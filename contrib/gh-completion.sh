@@ -85,6 +85,13 @@ _gh_find_subcommand ()
 	done
 }
 
+_gh_network_users()
+{
+  ## FIXME: this is an expensive call, cache it locally
+  gh network list
+}
+
+
 _gh_remote_users()
 {
   git remote -v | egrep '//github.com/.+ \(fetch\)' | cut -f1
@@ -166,9 +173,8 @@ _gh_network_completion()
   
   _gh_trace "Got subcommand '$subcommand'"
   case "$subcommand" in
-    ## TODO: gh could give us a list of all network users ;)
     ## FIXME: we should only match one user
-    web)   users=$( _gh_remote_users ); _gh_comp_opts "$users" "$network_options" ;;
+    web)   users=$( _gh_network_users ); _gh_comp_opts "$users" "$network_options" ;;
     *)     _gh_comp "$network_options" ;;
   esac
 }
