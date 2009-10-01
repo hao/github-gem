@@ -32,6 +32,24 @@ _gh_comp()
   COMPREPLY=( $( compgen -W "$possible_comps" -- $partial ))
 }
 
+_gh_comp_opts()
+{
+  local word_comps=$1
+  local opts_comps=$2
+  local partial=$3
+  _gh_trace "Got words '$word_comps' and opts '$opts_comps', partial '$partial'"
+  
+  if [ -z "$partial" ] ; then
+    partial=${COMP_WORDS[COMP_CWORD]}
+    _gh_trace "No partial given, using last word '$partial'"
+  fi
+  
+  case "$partial" in
+    -*)  _gh_comp "$opts_comps" "$partial" ;;
+    *)   _gh_comp "$word_comps" "$partial" ;;
+  esac
+}
+
 _gh_next_word()
 {
   local c=${1:-1} i
@@ -45,6 +63,26 @@ _gh_next_word()
     esac
 		c=$((++c))
   done
+}
+
+_gh_find_subcommand ()
+{
+	local c=$1 subcommands=$2
+	_gh_trace "Find subcommand of '$2' (starts at $c)"
+
+	while [ $c -lt $COMP_CWORD ]; do
+		local word="${COMP_WORDS[c]}" sc
+		_gh_trace "  iter check word '$word' at '$c'"
+		for sc in $2; do
+  		_gh_trace "    == '$sc'?"
+			if [ "$sc" = "$word" ]; then
+    		_gh_trace "Word '$word' is a subcommand"
+				echo "$sc"
+				return
+			fi
+		done
+		c=$((++c))
+	done
 }
 
 _gh_remote_users()
