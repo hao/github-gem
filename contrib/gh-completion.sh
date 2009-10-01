@@ -86,6 +86,25 @@ _gh_clone_completion()
 	COMPREPLY=()
 }
 
+_gh_create_completion()
+{
+  local cur="${COMP_WORDS[COMP_CWORD]}"
+  _gh_trace "Completing 'create', cur word is '$cur'"
+
+	case "$cur" in
+    -*) _gh_comp "
+          --rdoc
+          --rst
+          --markdown
+          --mdown
+          --textile
+        "; return;;
+	esac
+
+  _gh_trace "The '$cur' is not an option, so don't complete"
+	COMPREPLY=()
+}
+
 _gh_gem_completion()
 {
   local c=1 command partial
@@ -111,6 +130,7 @@ _gh_gem_completion()
   case "$command" in
     browse)    _gh_browse_completion $c ;;
     clone)     _gh_clone_completion $c ;;
+    create)    _gh_create_completion $c ;;
     *)         _gh_trace "Command not handled"; COMPREPLY=() ;;
   esac
   
