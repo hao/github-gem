@@ -11,32 +11,70 @@ _gh_commands='
   pull-request pull track
 '
 
-_gh_gem_completion()
+_gh_trace()
 {
-  local c=1 command partial
-  ## Debug
-  # echo
-  # set | egrep '^COMP_(CWORD|WORDS|LINE|POINT)='
+  if [ -n "$GH_TRACE_TO" ] ; then
+    echo "$@" >> "$GH_TRACE_TO"
+  fi
+}
+
+_gh_comp()
+{
+  local possible_comps=$1
+  local partial=$2
+  _gh_trace "Got possibles '$possible_comps', partial '$partial'"
+  
+  if [ -z "$partial" ] ; then
+    partial=${COMP_WORDS[COMP_CWORD]}
+    _gh_trace "No partial given, using last word '$partial'"
+  fi
+  
+  COMPREPLY=( $( compgen -W "$possible_comps" -- $partial ))
+}
+
+_gh_next_word()
+{
+  local c=${1:-1} i
   
   while [ $c -lt $COMP_CWORD ]; do
     i="${COMP_WORDS[c]}"
-    # echo "  iter i='$i', c is '$c'"
+    _gh_trace "  iter i='$i', c is '$c'"
     case "$i" in
       -*) ;; # ignore options before command
-      *) command="$i"; break ;;
+      *)  echo $i; break ;;
+    esac
+		c=$((++c))
+  done
+}
+
+_gh_gem_completion()
+{
+  local c=1 command partial
+  _gh_trace $( set | egrep '^COMP_(CWORD|WORDS|LINE|POINT)=' )
+  
+  while [ $c -lt $COMP_CWORD ]; do
+    i="${COMP_WORDS[c]}"
+    _gh_trace "  iter i='$i', c is '$c'"
+    case "$i" in
+      -*) ;; # ignore options before command
+      *) command="$i"; c=$((++c)); break ;;
     esac
 		c=$((++c))
   done
   
-  # echo "Got command '$command', c is '$c'"  
   if [ -z "$command" ] ; then
-    partial=${COMP_WORDS[COMP_CWORD]}
-    COMPREPLY=( $( compgen -W "$_gh_commands" -- $partial ) )
-  else
-    COMPREPLY=''
+    _gh_trace "No command, complete from global list of commands"
+    _gh_comp "$_gh_commands"
+    return 0
   fi
+  
+  _gh_trace "Got command '$command', c is '$c'"
+  case "$command" in
+    *)         _gh_trace "Command not handled"; COMPREPLY=() ;;
+  esac
   
   return 0
 }
 
-complete -F _gh_gem_completion -o default gh
+complete -F _gh_gem_completion gh
+
