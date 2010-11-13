@@ -1,6 +1,32 @@
+<<<<<<< HEAD
 == 0.4.1
 
 Add 1.9.x compatibility.
+=======
+== 0.4.6 2010-11-04
+
+* Fix recent https migration of github.com [fishman]
+
+== 0.4.5 2010-10-25
+
+* Added "gh admin" - to open the Admin page for this project
+
+== 0.4.4 2010-10-17
+
+* Fixed 'create-from-local' to correctly select public/private [scott]
+
+== 0.4.2
+
+New protocols supported: http, git+ssh, git+ssh://git@
+
+Added missing 'json' gem dependency.
+
+== 0.4.1
+
+Updated Commands:
+  * gh home - no longer appends /tree/master to the end of the URL
+  * gh create-from-local - fixed quoting bug to prevented project creation
+>>>>>>> fa149f475c3209ded38f97736eaf77bee26517aa
 
 == 0.4.0
 
